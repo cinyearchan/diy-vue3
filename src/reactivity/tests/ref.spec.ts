@@ -81,7 +81,6 @@ describe('ref', () => {
     // 遇到 ref，赋值不是 ref，是数字 20
     proxyUser.age = 20
     expect(proxyUser.age).toBe(20)
-    console.log(user.age)
     expect(user.age.value).toBe(20)
 
     // 遇到 ref，赋值是 ref，ref(10)
