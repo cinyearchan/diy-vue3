@@ -1,9 +1,11 @@
 {
   "name": "diy-vue3",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "lib/guide-diy-vue.cjs.js",
+  "module": "lib/guide-diy-vue.esm.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "rollup -c rollup.config.js"
   },
   "repository": "https://github.com/cinyearchan/diy-vue3.git",
   "license": "MIT",
@@ -11,9 +13,12 @@
     "@babel/core": "^7.18.5",
     "@babel/preset-env": "^7.18.2",
     "@babel/preset-typescript": "^7.17.12",
+    "@rollup/plugin-typescript": "^8.3.3",
     "@types/jest": "^28.1.2",
     "babel-jest": "^28.1.1",
     "jest": "^28.1.1",
+    "rollup": "^2.75.7",
+    "tslib": "^2.4.0",
     "typescript": "^4.7.4"
   }
 }

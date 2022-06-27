@@ -12,9 +12,14 @@ function patch(vnode, container) {
 
   // 判断是否是 element
   // TODO 处理 element
+  processElement(vnode, container)
 
   // 处理组件 component
   processComponent(vnode, container)
+}
+
+function processElement(vnode, container) {
+  
 }
 
 function processComponent(vnode: any, container: any) {
