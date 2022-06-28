@@ -21,7 +21,17 @@ export const App = {
     [
       h('div', {}, 'hi, ' + this.msg),
       h(Foo, {
-        count: 1
+        count: 1,
+        // on + Event
+        onAdd() {
+          console.log('onAdd')
+        },
+        onFoo(a, b) {
+          console.log('onFoo', a, b)
+        },
+        onAddFoo(a, b) {
+          console.log('onAddFoo', a, b)
+        }
       })
     ]
     )
