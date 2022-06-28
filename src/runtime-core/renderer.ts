@@ -28,7 +28,7 @@ function processElement(vnode, container) {
 }
 
 function mountElement(vnode, container) {
-  const el = document.createElement(vnode.type)
+  const el = (vnode.el = document.createElement(vnode.type))
 
   // string array
   const { children } = vnode
@@ -60,15 +60,15 @@ function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container)
 }
 
-function mountComponent(vnode: any, container) {
-  const instance = createComponentInstance(vnode)
+function mountComponent(initialVNode: any, container) {
+  const instance = createComponentInstance(initialVNode)
 
   setupComponent(instance)
-  setupRenderEffect(instance, container)
+  setupRenderEffect(instance, initialVNode, container)
 }
 
 
-function setupRenderEffect(instance: any, container) {
+function setupRenderEffect(instance: any, initialVNode, container) {
   // 获取代理对象
   const { proxy } = instance
 
@@ -79,5 +79,8 @@ function setupRenderEffect(instance: any, container) {
   // vnode -> element -> mountElement
 
   patch(subTree, container)
+
+  // element -> mount 再挂载 el
+  initialVNode.el = subTree.el
 }
 
