@@ -5,7 +5,10 @@ export const App = {
     window.self = this
     return h('div', {
       id: 'root',
-      class: ['red', 'head']
+      class: ['red', 'head'],
+      onClick() {
+        console.log('click')
+      }
     },
     // string
     // 'h1, vue'
