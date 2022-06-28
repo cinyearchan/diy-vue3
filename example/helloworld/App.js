@@ -9,7 +9,9 @@ export const App = {
     // string
     // 'h1, vue'
     // array
-    [h('p', { class: 'red' }, 'h1'), h('p', { class: 'blue' }, 'vue')]
+    // [h('p', { class: 'red' }, 'h1'), h('p', { class: 'blue' }, 'vue')]
+    // this
+    'hi ' + this.msg
     )
   },
   setup() {
