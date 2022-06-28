@@ -1,4 +1,6 @@
 import { h } from '../../lib/guide-diy-vue.esm.js'
+import { Foo } from './Foo.js'
+
 window.self = null
 export const App = {
   render() {
@@ -15,7 +17,13 @@ export const App = {
     // array
     // [h('p', { class: 'red' }, 'h1'), h('p', { class: 'blue' }, 'vue')]
     // this
-    'hi ' + this.msg
+    // 'hi ' + this.msg
+    [
+      h('div', {}, 'hi, ' + this.msg),
+      h(Foo, {
+        count: 1
+      })
+    ]
     )
   },
   setup() {
