@@ -3,6 +3,7 @@ import { Foo } from './Foo.js'
 
 window.self = null
 export const App = {
+  name: 'app',
   render() {
     window.self = this
     return h('div', {
@@ -32,9 +33,8 @@ export const App = {
         onAddFoo(a, b) {
           console.log('onAddFoo', a, b)
         }
-      })
-    ]
-    )
+      }),
+    ])
   },
   setup() {
     return {
