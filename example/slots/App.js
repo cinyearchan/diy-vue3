@@ -1,4 +1,4 @@
-import { h } from '../../lib/guide-diy-vue.esm.js'
+import { h, createTextVNode } from '../../lib/guide-diy-vue.esm.js'
 import { SlotFoo } from './SlotFoo.js'
 import { NamedSlotFoo } from './NamedSlotFoo.js'
 import { NamedScopedSlotFoo } from './NamedScopedSlotFoo.js'
@@ -31,7 +31,8 @@ export const App = {
       arraySlotFoo,
       namedSlotFoo,
       namedScopedSlotFoo,
-      namedScopedSlotFoo2
+      namedScopedSlotFoo2,
+      createTextVNode('text node')
     ])
   },
   setup() {

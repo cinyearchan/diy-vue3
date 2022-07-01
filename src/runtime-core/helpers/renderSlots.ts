@@ -1,4 +1,4 @@
-import { createVNode } from '../vnode'
+import { createVNode, Fragment } from '../vnode'
 
 /**
  * 此处的 renderSlots 用于渲染插槽内容
@@ -10,15 +10,15 @@ export function renderSlots(slots, name?, props?) {
     if (slot) {
       // 作用域插槽
       if (typeof slot === 'function') {
-        return createVNode('div', {}, slot(props))
+        return createVNode(Fragment, {}, slot(props))
       } else {
         // 具名插槽
-        return createVNode('div', {}, slot)
+        return createVNode(Fragment, {}, slot)
       }
     }
   } else {
     // 非具名插槽
     // console.log('noname')
-    return createVNode('div', {}, slots)
+    return createVNode(Fragment, {}, slots)
   }
 }

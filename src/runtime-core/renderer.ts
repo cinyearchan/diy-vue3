@@ -1,6 +1,7 @@
 import { isObject } from '../shared'
 import { ShapeFlags } from '../shared/ShapeFlags'
 import { createComponentInstance, setupComponent } from './component'
+import { Fragment, Text } from './vnode'
 
 export function render(vnode, container) {
   // patch
@@ -16,15 +17,37 @@ function patch(vnode, container) {
   // vnode -> flag
   // string -> element
   // 判断是否是 element
-  const { shapeFlag } = vnode
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    // TODO 处理 element
-    processElement(vnode, container)
-    // STATEFUL_COMPONENT
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    // 处理组件 component
-    processComponent(vnode, container)
+  const { type, shapeFlag } = vnode
+
+  // Fragment -> 只渲染 children
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container)
+      break
+    case Text:
+      processText(vnode, container)
+      break
+    default:
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        // TODO 处理 element
+        processElement(vnode, container)
+        // STATEFUL_COMPONENT
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        // 处理组件 component
+        processComponent(vnode, container)
+      }
+      break
   }
+}
+
+function processFragment(vnode, container) {
+  mountChildren(vnode, container)
+}
+
+function processText(vnode: any, container: any) {
+  const { children } = vnode
+  const textNode = (vnode.el = document.createTextNode(children))
+  container.append(textNode)
 }
 
 function processElement(vnode, container) {
@@ -99,4 +122,3 @@ function setupRenderEffect(instance: any, initialVNode, container) {
   // element -> mount 再挂载 el
   initialVNode.el = subTree.el
 }
-

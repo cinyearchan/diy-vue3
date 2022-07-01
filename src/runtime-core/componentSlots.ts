@@ -4,7 +4,7 @@ import { VNode } from './vnode'
 export function initSlots(instance, children) {
   // 判断是否需要处理 slot 、是否有具名插槽、是否有作用域插槽
   const { vnode } = instance
-  // if (vnode.shapeFlag & ShapeFlags.SLOT_CHILDREN) {
+  // if (vnode.shapeFlag & ShapeFlags.SLOT_CHILDREN) { // 这个判断基本可以省略，被下方的判断替代了
   //   normalizeSlots(children, instance)
   // }
   normalizeSlots(children, instance)
