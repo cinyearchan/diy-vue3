@@ -4,15 +4,19 @@ function createElement(type) {
   return document.createElement(type)
 }
 
-function patchProp(el, key, val) {
+function patchProp(el, key, prevVal, nextVal) {
   const isOn = (key: string) => /^on[A-Z]/.test(key)
   
   // 如果是 on 开头的注册事件 onClick onMousedown
   if (isOn(key)) {
     const event = key.slice(2).toLocaleLowerCase()
-    el.addEventListener(event, val)
+    el.addEventListener(event, nextVal)
   } else { // 普通属性
-    el.setAttribute(key, val)
+    if (nextVal === undefined || nextVal === null) {
+      el.removeAttribute(key)
+    } else {
+      el.setAttribute(key, nextVal)
+    }
   }
 }
 
