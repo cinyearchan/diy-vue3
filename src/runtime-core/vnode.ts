@@ -5,12 +5,14 @@ export class VNode {
   public type
   public props
   public children
+  public key
   public shapeFlag
   public el = null
   constructor(type, props?, children?) {
     this.type = type
     this.props = props
     this.children = children
+    this.key = props ? props.key : null
     this.shapeFlag = getShapeFlag(type)
   }
 }
