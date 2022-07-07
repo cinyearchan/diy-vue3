@@ -119,6 +119,14 @@ export function createRenderer(options) {
     }
   }
 
+  /**
+   * 双端对比 diff 算法更新子节点
+   * @param n1 旧子节点
+   * @param n2 新子节点
+   * @param container 容器
+   * @param parentComponent 父组件
+   * @param anchor 锚点
+   */
   function patchChildren(n1, n2, container, parentComponent, anchor) {
     const prevShapeFlag = n1.shapeFlag
     const shapeFlag = n2.shapeFlag
@@ -174,7 +182,7 @@ export function createRenderer(options) {
       if (isSameVNodeType(n1, n2)) {
         patch(n1, n2, container, parentComponent, parentAnchor)
       } else {
-        // 一旦检索到非公共部分，立即跳出循环
+        // 一旦检索到不同的部分，立即跳出循环
         break
       }
 
@@ -190,6 +198,7 @@ export function createRenderer(options) {
       if (isSameVNodeType(n1, n2)) {
         patch(n1, n2, container, parentComponent, parentAnchor)
       } else {
+        // 一旦检索到不同的部分，立即跳出循环
         break
       }
 
@@ -213,7 +222,50 @@ export function createRenderer(options) {
         i++
       }
     } else {
-      // 乱序的部分
+      // 5. 中间对比
+      let s1 = i
+      let s2 = i
+
+      // 记录新的节点的总数量
+      const toBePatched = e2 - s2 + 1
+      // 当前处理的数量
+      let patched = 0
+      const keyToNewIndexMap = new Map()
+
+      for (let i = s2; i <= e2; i++) { // 遍历新节点，建立映射关系
+        const nextChild = c2[i]
+        keyToNewIndexMap.set(nextChild.key, i)
+      }
+
+      for (let i = s1; i <= e1; i++) { // 遍历老节点，查找不同部分
+        const prevChild = c1[i]
+
+        if (patched >= toBePatched) {
+          hostRemove(prevChild.el)
+          break
+        }
+
+        // 开始查找
+        let newIndex
+        if (prevChild.key != null) { // null undefined
+          newIndex = keyToNewIndexMap.get(prevChild.key)
+        } else {
+          for (let j = s2; j < e2; j++) {
+            if (isSameVNodeType(prevChild, c2[j])) {
+              newIndex = j
+
+              break
+            }
+          }
+        }
+
+        if (newIndex === undefined) { // 说明这个节点在新的里面不存在，应该要删除
+          hostRemove(prevChild.el)
+        } else { // 这个节点在新的里面也存在，需要深层对比
+          patch(prevChild, c2[newIndex], container, parentComponent, null)
+          patched++
+        }
+      }
     }
   }
 
