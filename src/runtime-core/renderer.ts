@@ -231,6 +231,11 @@ export function createRenderer(options) {
       // 当前处理的数量
       let patched = 0
       const keyToNewIndexMap = new Map()
+      const newIndexToOldIndexMap = new Array(toBePatched)
+      let moved = false
+      let maxNewIndexSoFar = 0
+
+      for (let i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0
 
       for (let i = s2; i <= e2; i++) { // 遍历新节点，建立映射关系
         const nextChild = c2[i]
@@ -262,9 +267,37 @@ export function createRenderer(options) {
         if (newIndex === undefined) { // 说明这个节点在新的里面不存在，应该要删除
           hostRemove(prevChild.el)
         } else { // 这个节点在新的里面也存在，需要深层对比
+
+          if (newIndex >= maxNewIndexSoFar) {
+            maxNewIndexSoFar = newIndex
+          } else {
+            moved = true
+          }
+
+          newIndexToOldIndexMap[newIndex - s2] = i + 1
+
           patch(prevChild, c2[newIndex], container, parentComponent, null)
           patched++
         }
+      }
+
+      const increasingNewIndexSequence = moved ? getSequence(newIndexToOldIndexMap) : []
+      let j = increasingNewIndexSequence.length - 1
+
+      for (let i = toBePatched - 1; i >= 0; i--) {
+        const nextIndex = i + s2
+        const nextChild = c2[nextIndex]
+        const anchor = nextIndex + 1 < l2 ? c2[nextIndex + 1].el : null
+        if (newIndexToOldIndexMap[i] === 0) { // 5.3 创建
+          patch(null, nextChild, container, parentComponent, anchor)
+        } else if (moved) { // 5.2 移动
+          if (j < 0 || i !== increasingNewIndexSequence[j]) {
+            console.log('移动位置')
+            hostInsert(nextChild.el, container, anchor)
+          } else {
+            j--
+          }
+        }        
       }
     }
   }
@@ -370,4 +403,45 @@ export function createRenderer(options) {
   return {
     createApp: createAppAPI(render)
   }
+}
+
+function getSequence(arr) {
+  const p = arr.slice()
+  const result = [0]
+  let i, j, u, v, c
+  const len = arr.length
+  for (i = 0; i < len; i++) {
+    const arrI = arr[i]
+    if (arrI !== 0) {
+      j = result[result.length - 1]
+      if (arr[j] < arrI) {
+        p[i] = j
+        result.push(i)
+        continue
+      }
+      u = 0
+      v = result.length - 1
+      while (u < v) {
+        c = (u + v) >> 1
+        if (arr[result[c]] < arrI) {
+          u = c + 1
+        } else {
+          v = c
+        }
+      }
+      if (arrI < arr[result[u]]) {
+        if (u > 0) {
+          p[i] = result[u - 1]
+        }
+        result[u] = i
+      }
+    }
+  }
+  u = result.length
+  v = result[u - 1]
+  while (u-- > 0) {
+    result[u] = v
+    v = p[v]
+  }
+  return result
 }
