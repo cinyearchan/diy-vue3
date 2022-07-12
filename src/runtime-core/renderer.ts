@@ -255,7 +255,7 @@ export function createRenderer(options) {
         if (prevChild.key != null) { // null undefined
           newIndex = keyToNewIndexMap.get(prevChild.key)
         } else {
-          for (let j = s2; j < e2; j++) {
+          for (let j = s2; j <= e2; j++) {
             if (isSameVNodeType(prevChild, c2[j])) {
               newIndex = j
 
