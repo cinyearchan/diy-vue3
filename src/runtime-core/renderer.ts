@@ -2,6 +2,7 @@ import { effect } from '../reactivity'
 import { isObject, EMPTY_OBJ } from '../shared'
 import { ShapeFlags } from '../shared/ShapeFlags'
 import { createComponentInstance, setupComponent } from './component'
+import { shouldUpdateComponent } from './componentUpdateUtils'
 import { createAppAPI } from './createApp'
 import { Fragment, Text } from './vnode'
 
@@ -352,19 +353,35 @@ export function createRenderer(options) {
   }
 
   function processComponent(n1: any, n2: any, container: any, parentComponent, anchor) {
-    mountComponent(n2, container, parentComponent, anchor)
+    if (!n1) { // 创建组件
+      mountComponent(n2, container, parentComponent, anchor)
+    } else { // 更新组件
+      updateComponent(n1, n2, container, parentComponent, anchor)
+    }
   }
 
   function mountComponent(initialVNode: any, container, parentComponent, anchor) {
-    const instance = createComponentInstance(initialVNode, parentComponent)
+    const instance = (initialVNode.component = createComponentInstance(initialVNode, parentComponent))
 
     setupComponent(instance)
     setupRenderEffect(instance, initialVNode, container, anchor)
   }
+  
+  function updateComponent(n1, n2, container, parentComponent, anchor) {
+    const instance = (n2.component = n1.component)
+    if (shouldUpdateComponent(n1, n2)) { // 当新旧虚拟节点的 props 内部确实不同时，才会更新组件
 
+      instance.next = n2
+
+      instance.update() // setupRenderEffect 中 effect 函数执行后会返回一个执行函数给 instance.update，当再次调用这个执行函数时，effect 内的函数会再次执行
+    } else {
+      n2.el = n1.el
+      n2.vnode = n2
+    }
+  }
 
   function setupRenderEffect(instance: any, initialVNode, container, anchor) {
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log('init')
         // 获取代理对象
@@ -385,7 +402,13 @@ export function createRenderer(options) {
       } else {
         console.log('update')
         
-        const { proxy } = instance
+        const { proxy, next, vnode } = instance
+        if (next) { // next 是要新的虚拟节点 vnode 是旧的虚拟节点
+          next.el = vnode.el // 更新 el
+          
+          updateComponentPreRender(instance, next)
+        }
+
         const subTree = instance.render.call(proxy)
         const prevSubTree = instance.subTree
 
@@ -403,6 +426,16 @@ export function createRenderer(options) {
   return {
     createApp: createAppAPI(render)
   }
+}
+
+function updateComponentPreRender(instance, nextVNode) {
+  // 用新的虚拟节点替换掉旧的虚拟节点
+  instance.vnode = nextVNode
+  // 将组件实例上的 next 置空，以后以后更新组件时挂载新的虚拟节点
+  instance.next = null
+
+  // 更新组件 props
+  instance.props = nextVNode.props
 }
 
 function getSequence(arr) {

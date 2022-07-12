@@ -8,6 +8,8 @@ export class VNode {
   public key
   public shapeFlag
   public el = null
+  public component = null
+  public next = null
   constructor(type, props?, children?) {
     this.type = type
     this.props = props
