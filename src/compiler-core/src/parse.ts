@@ -25,9 +25,31 @@ function parseChildren(context) {
     }
   }
 
+  if (!node) { // 如果上述两种情况都没有命中，就当做 text 进行解析
+    node = parseText(context)
+  }
+
   nodes.push(node)
 
   return nodes
+}
+
+function parseText(context: any) {
+  // 1 获取对应的内容 content
+  const content = parseTextData(context, context.source.length)
+  
+  return {
+    type: NodeTypes.TEXT,
+    content
+  }
+}
+
+function parseTextData(context: any, length) {
+  const content = context.source.slice(0, length)
+
+  // 2 删除处理完成的代码
+  advanceBy(context, content.length)
+  return content
 }
 
 function parseElement(context: any) {
@@ -70,8 +92,9 @@ function parseInterpolation (context) {
   advanceBy(context, openDelimiter.length)
 
   const rawContentLength = closeIndex - openDelimiter.length
+    
+  const rawContent = parseTextData(context, rawContentLength)
 
-  const rawContent = context.source.slice(0, rawContentLength)
   const content = rawContent.trim()
 
   advanceBy(context, rawContentLength + closeDelimiter.length)
@@ -85,6 +108,11 @@ function parseInterpolation (context) {
   }
 }
 
+/**
+ * 删除处理完成的代码
+ * @param context 
+ * @param length 需要删除的字符长度
+ */
 function advanceBy(context: any, length: number) {
   context.source = context.source.slice(length)
 }
